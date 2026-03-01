@@ -1,0 +1,946 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WGLT Black Inventors Hangman</title>
+
+  <style>
+    :root{
+      /* Pan-African palette */
+      --panRed:#e31b23;
+      --panBlack:#0b0d12;
+      --panGreen:#0ea64b;
+      --panGold:#f4c542;
+
+      /* Theme */
+      --bg: var(--panBlack);
+      --panel:#11141b;
+      --panel2:#0f1220;
+      --text:#f6f7fb;
+      --muted:#b7bccb;
+      --outline:#23283a;
+      --shadow:0 12px 28px rgba(0,0,0,.45);
+      --radius:16px;
+
+      --btn:#1a1f2d;
+      --btn2:#20263a;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; padding:18px 12px 28px; text-align:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+
+      /* Pan-African glow */
+      background:
+        radial-gradient(1000px 520px at 20% -160px, rgba(227,27,35,.35) 0%, rgba(11,13,18,0) 62%),
+        radial-gradient(900px 520px at 80% -160px, rgba(14,166,75,.30) 0%, rgba(11,13,18,0) 62%),
+        radial-gradient(900px 520px at 50% -240px, rgba(244,197,66,.22) 0%, rgba(11,13,18,0) 60%),
+        linear-gradient(180deg, #0a0c12 0%, var(--bg) 55%, #07080c 100%);
+    }
+
+    header{ max-width:1020px; margin:0 auto 12px; }
+    h1{ margin:8px 0 4px; font-size:22px; letter-spacing:.4px; }
+    .sub{ margin:0 auto 10px; max-width:860px; color:var(--muted); font-size:13px; line-height:1.35; }
+
+    /* Pan-African stripe bar */
+    .stripe{
+      height:10px;
+      max-width:1020px;
+      margin:10px auto 0;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--panRed), var(--panGold), var(--panGreen));
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .wrap{ max-width:1020px; margin:0 auto; display:grid; gap:12px; }
+    .panel{
+      background: rgba(17,20,27,.95);
+      border: 1px solid var(--outline);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .panel::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(600px 240px at 10% 0%, rgba(227,27,35,.10), transparent 55%),
+        radial-gradient(600px 240px at 90% 0%, rgba(14,166,75,.10), transparent 55%);
+      pointer-events:none;
+    }
+    .panel > *{ position:relative; }
+
+    .topRow{
+      display:flex; flex-wrap:wrap; gap:10px;
+      justify-content:space-between; align-items:center;
+      margin-bottom:8px;
+    }
+    .group{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; }
+    label{ color:var(--muted); font-size:12.5px; }
+
+    select, .btn{
+      background: var(--btn);
+      border: 1px solid var(--outline);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 10px;
+      font-size: 14px;
+      outline:none;
+      cursor:pointer;
+      touch-action: manipulation;
+    }
+    .btn{ background: var(--btn2); padding:10px 12px; }
+    .btn:active{ transform: scale(.98); }
+    .btn[aria-pressed="true"]{
+      border-color: rgba(244,197,66,.55);
+      box-shadow: 0 0 0 2px rgba(244,197,66,.12) inset;
+    }
+
+    .stats{
+      display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .statBox{
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--outline);
+      border-radius: 14px;
+      padding: 9px 10px;
+      min-width: 132px;
+      text-align:center;
+    }
+    .statBox b{ color: var(--text); }
+
+    #categoryTag{
+      margin:8px 0 0;
+      color: var(--panGold);
+      font-size:13px;
+      letter-spacing:.2px;
+    }
+
+    #word{
+      font-size: 30px;
+      letter-spacing: 8px;
+      margin: 14px 0 6px;
+      word-break: break-word;
+      min-height: 40px;
+      text-shadow: 0 8px 22px rgba(0,0,0,.35);
+    }
+
+    /* NEW: small rule label */
+    #rulesLabel{
+      margin: 2px auto 0;
+      max-width: 860px;
+      font-size: 12.5px;
+      line-height: 1.35;
+      color: var(--muted);
+      display:none;
+    }
+    #rulesLabel b{ color: var(--panGold); }
+
+    #hintArea{
+      display:none;
+      margin: 10px auto 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px dashed rgba(244,197,66,.35);
+      padding-top: 10px;
+      line-height: 1.35;
+    }
+
+    .kbd{
+      display:grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+      max-width: 860px;
+      margin-left:auto; margin-right:auto;
+    }
+    .letterBtn{
+      background: linear-gradient(180deg, rgba(32,38,58,.92), rgba(26,31,45,.92));
+      border: 1px solid var(--outline);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 0;
+      font-size: 16px;
+      cursor:pointer;
+      touch-action: manipulation;
+    }
+    .letterBtn:active{ transform: scale(.98); }
+    .letterBtn[disabled]{
+      background: rgba(255,255,255,.06);
+      color: rgba(246,247,251,.35);
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .bottomRow{
+      display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:center;
+      margin-top: 12px;
+    }
+    .primary{
+      background: linear-gradient(90deg, var(--panRed), var(--panGold), var(--panGreen));
+      color:#111;
+      border:none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 900;
+      cursor:pointer;
+      touch-action: manipulation;
+      box-shadow: 0 12px 26px rgba(0,0,0,.40);
+    }
+    .primary:active{ transform: scale(.98); }
+    .danger{
+      background: rgba(227,27,35,.14);
+      border: 1px solid rgba(227,27,35,.38);
+      color: var(--text);
+    }
+
+    /* Classroom panel */
+    .classPanel{
+      background: rgba(15,18,32,.88);
+      border: 1px solid var(--outline);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+      text-align:left;
+      position: relative;
+      overflow: hidden;
+    }
+    .classPanel::after{
+      content:"";
+      position:absolute; left:0; right:0; bottom:0; height:5px;
+      background: linear-gradient(90deg, var(--panRed), var(--panGold), var(--panGreen));
+      opacity:.9;
+      pointer-events:none;
+    }
+    .classGrid{
+      display:grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 10px;
+      align-items:center;
+    }
+    .classGrid .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-start; }
+    .note{ color: var(--muted); font-size: 12.5px; line-height: 1.35; margin: 6px 0 0; }
+
+    /* Popup */
+    #overlay{
+      display:none; position:fixed; inset:0;
+      background: rgba(0,0,0,.65);
+      align-items:center; justify-content:center;
+      padding: 14px; z-index: 50;
+    }
+    #popup{
+      width:min(660px, 94vw);
+      background: #0f1220;
+      border: 2px solid var(--panGold);
+      border-radius: 18px;
+      padding: 18px;
+      text-align:left;
+      box-shadow: 0 18px 44px rgba(0,0,0,.55);
+      position: relative;
+      overflow: hidden;
+    }
+    #popup::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(520px 240px at 0% 0%, rgba(227,27,35,.14), transparent 55%),
+        radial-gradient(520px 240px at 100% 0%, rgba(14,166,75,.12), transparent 55%);
+      pointer-events:none;
+    }
+    #popup > *{ position:relative; }
+
+    #popup h2{
+      margin: 0 0 10px;
+      color: var(--panGold);
+      text-align:center;
+      letter-spacing:.3px;
+    }
+    .popLine{ margin: 8px 0; font-size: 15px; line-height: 1.35; }
+    .popLine span{ color: var(--muted); }
+    .popBtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top: 14px; }
+    .linkBtn{
+      background: transparent;
+      border: 1px solid var(--outline);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor:pointer;
+      touch-action: manipulation;
+    }
+    .linkBtn:active{ transform: scale(.98); }
+
+    @media (max-width: 760px){ .classGrid{ grid-template-columns: 1fr; } }
+    @media (max-width: 520px){
+      #word{ font-size: 26px; letter-spacing: 6px; }
+      .kbd{ grid-template-columns: repeat(7, 1fr); }
+      .statBox{ min-width: 118px; }
+      .classPanel{ text-align:center; }
+      .classGrid .row{ justify-content:center; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>WGLT Black Inventors Hangman</h1>
+  <p class="sub">
+    Tap letters to guess the invention. Win to reveal the inventor, patent year, and how it’s used today. 🎮📚
+  </p>
+  <div class="stripe" aria-hidden="true"></div>
+</header>
+
+<div class="wrap">
+
+  <div class="classPanel">
+    <div class="classGrid">
+      <div>
+        <div class="row">
+          <button class="btn" id="classToggle" type="button" aria-pressed="false">Classroom Mode: Off</button>
+
+          <label for="autoNextSelect">Auto-next</label>
+          <select id="autoNextSelect" aria-label="Auto next delay">
+            <option value="0">Off</option>
+            <option value="2">2s</option>
+            <option value="3" selected>3s</option>
+            <option value="5">5s</option>
+          </select>
+
+          <button class="btn danger" id="resetSessionBtn" type="button">Reset Session</button>
+        </div>
+
+        <p class="note" id="modeNote">
+          Classroom Mode tracks session rounds and correct answers. Auto-next moves to the next round after a win or loss.
+        </p>
+      </div>
+
+      <div class="stats" style="justify-content:flex-end;">
+        <div class="statBox">Session Rounds: <b><span id="sessRounds">0</span></b></div>
+        <div class="statBox">Session Correct: <b><span id="sessCorrect">0</span></b></div>
+        <div class="statBox">Session Score: <b><span id="sessScore">0</span></b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="topRow">
+      <div class="group">
+        <label for="catSelect">Category</label>
+        <select id="catSelect" aria-label="Category">
+          <option value="All" selected>All</option>
+          <option value="Science">Science</option>
+          <option value="Transportation">Transportation</option>
+          <option value="Daily Life">Daily Life</option>
+          <option value="Modern Tech">Modern Tech</option>
+        </select>
+
+        <label for="diffSelect">Difficulty</label>
+        <select id="diffSelect" aria-label="Difficulty">
+          <option value="K2">K–2 (Elementary)</option>
+          <option value="35">3–5 (Elementary)</option>
+          <option value="Easy">Easy</option>
+          <option value="Normal" selected>Normal</option>
+          <option value="Hard">Hard</option>
+        </select>
+
+        <button class="btn" id="audioToggle" type="button" aria-pressed="true">Audio: On</button>
+        <button class="btn" id="hintBtn" type="button">Hint</button>
+        <button class="btn" id="newBtn" type="button">New Word</button>
+      </div>
+
+      <div class="stats">
+        <div class="statBox">Wrong: <b><span id="wrong">0</span>/<span id="maxWrong">6</span></b></div>
+        <div class="statBox">Score: <b><span id="score">0</span></b></div>
+        <div class="statBox">Streak: <b><span id="streak">0</span></b></div>
+      </div>
+    </div>
+
+    <div id="categoryTag"></div>
+    <div id="word"></div>
+
+    <!-- NEW: rule label for vowel freebies -->
+    <div id="rulesLabel"></div>
+
+    <div id="hintArea"></div>
+
+    <div class="kbd" id="letters"></div>
+
+    <div class="bottomRow">
+      <button class="primary" id="revealBtn" type="button">Reveal (Ends Round)</button>
+      <button class="linkBtn danger" id="resetScoreBtn" type="button">Reset Score</button>
+    </div>
+  </div>
+</div>
+
+<!-- Popup -->
+<div id="overlay">
+  <div id="popup" role="dialog" aria-modal="true">
+    <h2 id="popTitle">You Win! 🎉</h2>
+
+    <div class="popLine"><span>Invention:</span> <b id="popInvention"></b></div>
+    <div class="popLine"><span>Inventor:</span> <b id="popInventor"></b></div>
+    <div class="popLine"><span>Category:</span> <b id="popCategory"></b></div>
+
+    <div class="popLine"><span>Patent Year:</span> <b id="popYear"></b></div>
+    <div class="popLine"><span>Used Today:</span> <b id="popModern"></b></div>
+
+    <div class="popBtns">
+      <button class="primary" id="playAgainBtn" type="button">Next Round</button>
+      <button class="linkBtn danger" id="closeBtn" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   DIFFICULTY
+========================= */
+const DIFFICULTY = {
+  K2:     { label:"K–2",    maxWrong: 10, hintUses: 99, revealVowelsAtStart: true,  scoreBase: 60,  scorePerRemainingWrong: 5,  streakBonus: 6,  kidFilter:"K2" },
+  "35":   { label:"3–5",    maxWrong: 9,  hintUses: 3,  revealVowelsAtStart: true,  scoreBase: 75,  scorePerRemainingWrong: 6,  streakBonus: 8,  kidFilter:"35" },
+  Easy:   { label:"Easy",   maxWrong: 8,  hintUses: 99, revealVowelsAtStart: true,  scoreBase: 80,  scorePerRemainingWrong: 6,  streakBonus: 10, kidFilter:null },
+  Normal: { label:"Normal", maxWrong: 6,  hintUses: 1,  revealVowelsAtStart: false, scoreBase: 100, scorePerRemainingWrong: 10, streakBonus: 15, kidFilter:null },
+  Hard:   { label:"Hard",   maxWrong: 5,  hintUses: 0,  revealVowelsAtStart: false, scoreBase: 130, scorePerRemainingWrong: 14, streakBonus: 20, kidFilter:null }
+};
+
+const VOWELS = new Set(["A","E","I","O","U"]);
+
+/* =========================
+   DATA (your list)
+========================= */
+const ITEMS = [
+  {category:"Daily Life", inventor:"Thomas L. Jennings", invention:"Dry Scouring", patentYear:"1821", modernUsage:"Professional dry cleaning services."},
+  {category:"Daily Life", inventor:"Henry Blair", invention:"Seed Planter", patentYear:"1834", modernUsage:"Automated farming and seed drilling."},
+  {category:"Science", inventor:"Norbert Rillieux", invention:"Multiple-Effect Evaporator", patentYear:"1843", modernUsage:"Sugar refining and desalination of water."},
+  {category:"Transportation", inventor:"Lewis Temple", invention:"Toggle Harpoon", patentYear:"1848", modernUsage:"Design used in modern whaling and rescue harpoons."},
+  {category:"Transportation", inventor:"Elijah McCoy", invention:"Automatic Lubricator", patentYear:"1872", modernUsage:"Self-oiling machinery in factories and engines."},
+  {category:"Transportation", inventor:"Andrew Beard", invention:"Jenny Coupler", patentYear:"1897", modernUsage:"Standardized automatic coupling for train cars."},
+  {category:"Transportation", inventor:"Granville T. Woods", invention:"Induction Telegraph", patentYear:"1887", modernUsage:"Real-time communication between moving trains."},
+  {category:"Daily Life", inventor:"Jan Ernst Matzeliger", invention:"Shoe Lasting Machine", patentYear:"1883", modernUsage:"Mass production of affordable footwear."},
+  {category:"Transportation", inventor:"Alexander Miles", invention:"Automatic Elevator Doors", patentYear:"1887", modernUsage:"Safety sensors and sliding doors in elevators."},
+  {category:"Daily Life", inventor:"Sarah Boone", invention:"Improved Ironing Board", patentYear:"1892", modernUsage:"Tapered boards used for ironing shirt sleeves."},
+  {category:"Daily Life", inventor:"Sarah E. Goode", invention:"Cabinet Bed", patentYear:"1885", modernUsage:"Space-saving furniture like hide-away beds."},
+  {category:"Daily Life", inventor:"Lyda Newman", invention:"Improved Hairbrush", patentYear:"1898", modernUsage:"Synthetic bristles and easy-clean brush designs."},
+  {category:"Daily Life", inventor:"George W. Murray", invention:"Cotton Chopper", patentYear:"1894", modernUsage:"Mechanized agriculture and crop maintenance."},
+  {category:"Transportation", inventor:"Joseph Winters", invention:"Fire Escape Ladder", patentYear:"1878", modernUsage:"Truck-mounted ladders for high-rise firefighting."},
+  {category:"Daily Life", inventor:"John Burr", invention:"Rotary Lawn Mower", patentYear:"1899", modernUsage:"The spinning blade design used in home lawn mowers."},
+  {category:"Daily Life", inventor:"Alfred L. Cralle", invention:"Ice Cream Scoop", patentYear:"1897", modernUsage:"The mechanical release trigger used in kitchen scoops."},
+  {category:"Daily Life", inventor:"William Purvis", invention:"Fountain Pen Improvements", patentYear:"1890", modernUsage:"Modern ink-feed systems in pens."},
+  {category:"Transportation", inventor:"C.B. Brooks", invention:"Street Sweeper", patentYear:"1896", modernUsage:"Motorized city sanitation and cleaning trucks."},
+  {category:"Transportation", inventor:"Isaac Johnson", invention:"Bicycle Frame", patentYear:"1899", modernUsage:"The foldable/separable frame used in transport bikes."},
+  {category:"Daily Life", inventor:"John Lee Love", invention:"Pencil Sharpener", patentYear:"1897", modernUsage:"Portable hand-cranked and pocket sharpeners."},
+  {category:"Transportation", inventor:"Garrett Morgan", invention:"Three-Position Traffic Signal", patentYear:"1923", modernUsage:"The yellow 'caution' light at intersections."},
+  {category:"Transportation", inventor:"Frederick M. Jones", invention:"Mobile Refrigeration", patentYear:"1940", modernUsage:"Refrigerated trucks (Thermo King) for food transport."},
+  {category:"Transportation", inventor:"Marie Van Brittan Brown", invention:"Home Security System", patentYear:"1969", modernUsage:"Modern CCTV and video doorbell systems."},
+  {category:"Transportation", inventor:"Richard Spikes", invention:"Automatic Gear Shift", patentYear:"1932", modernUsage:"Standard automatic transmissions in cars."},
+  {category:"Daily Life", inventor:"Alice H. Parker", invention:"Central Heating Furnace", patentYear:"1919", modernUsage:"Natural gas heating systems for entire houses."},
+  {category:"Science", inventor:"Charles Richard Drew", invention:"Blood Bank", patentYear:"1940", modernUsage:"Long-term storage of blood plasma for hospitals."},
+  {category:"Transportation", inventor:"Philip B. Downing", invention:"Street Letter Box", patentYear:"1891", modernUsage:"Secure public mail collection boxes (USPS)."},
+  {category:"Daily Life", inventor:"Osbourn Dorsey", invention:"Door Knob and Stop", patentYear:"1878", modernUsage:"Standard internal door hardware and handles."},
+  {category:"Daily Life", inventor:"Robert Scott", invention:"Corn Harvester", patentYear:"1878", modernUsage:"Mechanized harvesting in the corn industry."},
+  {category:"Transportation", inventor:"Granville T. Woods", invention:"Third Rail", patentYear:"1888", modernUsage:"Powering modern subway systems."},
+  {category:"Transportation", inventor:"Frederick D. Patterson", invention:"Patterson-Greenfield Car", patentYear:"1915", modernUsage:"Commercial manufacturing of automobiles."},
+
+  {category:"Daily Life", inventor:"Charles S.L. Baker", invention:"Friction Heater", patentYear:"1906", modernUsage:"Clean heat generation using friction and fluids."},
+  {category:"Daily Life", inventor:"W.A. Martin", invention:"Improved Lock", patentYear:"1889", modernUsage:"Security locks and door latch mechanisms."},
+  {category:"Transportation", inventor:"G.E. Becket", invention:"Letter Box", patentYear:"1892", modernUsage:"In-door mail slots for home delivery."},
+  {category:"Transportation", inventor:"L.F. Brown", invention:"Horse Bridle Bit", patentYear:"1892", modernUsage:"Standard equestrian control equipment."},
+  {category:"Transportation", inventor:"Oscar E. Brown", invention:"Improved Horseshoe", patentYear:"1892", modernUsage:"Specialized hoof protection for working horses."},
+  {category:"Transportation", inventor:"J.F. Pickering", invention:"Airship Designs", patentYear:"1900", modernUsage:"Early aerodynamics for blimps and dirigibles."},
+  {category:"Modern Tech", inventor:"Meredith Gourdine", invention:"EGD Power Generation", patentYear:"1964", modernUsage:"Used to remove pollutants from factory smoke."},
+  {category:"Modern Tech", inventor:"Raye Montague", invention:"Computer Ship Design", patentYear:"1971", modernUsage:"CAD software used for modern naval engineering."},
+  {category:"Modern Tech", inventor:"Lonnie Johnson", invention:"Super Soaker", patentYear:"1990", modernUsage:"High-pressure water toys and heat pumps."},
+  {category:"Science", inventor:"George W. Carver", invention:"Peanut Products", patentYear:"1920s", modernUsage:"Bio-plastics, synthetic dyes, and soil health."},
+  {category:"Science", inventor:"Lewis Latimer", invention:"Carbon Filament", patentYear:"1882", modernUsage:"Long-lasting light bulbs for home use."},
+  {category:"Science", inventor:"Dr. Patricia Bath", invention:"Laserphaco Probe", patentYear:"1988", modernUsage:"Laser surgery to treat cataracts and restore sight."},
+  {category:"Science", inventor:"Otis Boykin", invention:"Electrical Resistor", patentYear:"1959", modernUsage:"Used in heart pacemakers and guided missiles."},
+  {category:"Science", inventor:"Dr. Shirley Jackson", invention:"Telecommunications Research", patentYear:"1970s", modernUsage:"Foundation for Caller ID and Call Waiting."},
+  {category:"Science", inventor:"James E. West", invention:"Electret Microphone", patentYear:"1964", modernUsage:"Used in 90% of modern cell phones and laptops."},
+  {category:"Modern Tech", inventor:"Dr. Mark Dean", invention:"ISA Bus", patentYear:"1981", modernUsage:"Allows computers to communicate with hardware."},
+  {category:"Science", inventor:"Valerie Thomas", invention:"Illusion Transmitter", patentYear:"1980", modernUsage:"3D imaging and NASA satellite data visualization."},
+  {category:"Modern Tech", inventor:"Marian Croak", invention:"VoIP Technology", patentYear:"1990s", modernUsage:"The tech behind Zoom, Skype, and internet calls."},
+  {category:"Science", inventor:"George Alcorn", invention:"X-ray Spectrometer", patentYear:"1984", modernUsage:"Advanced imaging used in space and medicine."},
+  {category:"Science", inventor:"Emmett Chappelle", invention:"Bioluminescence Testing", patentYear:"1970s", modernUsage:"Detecting bacteria in drinking water instantly."},
+  {category:"Science", inventor:"Dr. Betty Harris", invention:"Explosives Detection", patentYear:"1986", modernUsage:"Field kits used for airport and military security."},
+  {category:"Modern Tech", inventor:"Jerry Lawson", invention:"Video Game Cartridge", patentYear:"1976", modernUsage:"Interchangeable software for gaming consoles."},
+  {category:"Modern Tech", inventor:"Alan Emtage", invention:"Archie Search Engine", patentYear:"1990", modernUsage:"The world's first internet search engine."},
+  {category:"Modern Tech", inventor:"Philip Emeagwali", invention:"Massively Parallel Processing", patentYear:"1989", modernUsage:"Enabling supercomputers to forecast weather."},
+  {category:"Science", inventor:"Henry Sampson", invention:"Gamma-Electric Cell", patentYear:"1971", modernUsage:"Radioisotope power sources for satellites."},
+  {category:"Science", inventor:"Benjamin Banneker", invention:"Wooden Clock", patentYear:"1753", modernUsage:"The first American-made striking clock."},
+  {category:"Science", inventor:"Alice Augusta Ball", invention:"Ball Method", patentYear:"1915", modernUsage:"The first effective treatment for leprosy."},
+  {category:"Science", inventor:"Dr. Daniel Hale Williams", invention:"Open Heart Surgery", patentYear:"1893", modernUsage:"First successful surgery on the human pericardium."},
+  {category:"Science", inventor:"Kenneth J. Dunkley", invention:"3D Viewing Glasses", patentYear:"1986", modernUsage:"Modern 3D movie theater eyewear."},
+  {category:"Daily Life", inventor:"Madam C.J. Walker", invention:"Walker System", patentYear:"1905", modernUsage:"Specialized hair health and pressing formulas."},
+  {category:"Daily Life", inventor:"Marjorie S. Joyner", invention:"Permanent Wave Machine", patentYear:"1928", modernUsage:"Standard salon equipment for curling hair."},
+
+  {category:"Daily Life", inventor:"George Crum", invention:"Potato Chip", patentYear:"1853", modernUsage:"The globally popular snack food."},
+  {category:"Daily Life", inventor:"John Standard", invention:"Improved Refrigerator", patentYear:"1891", modernUsage:"The design for modern cold-storage units."},
+  {category:"Transportation", inventor:"Miriam Benjamin", invention:"Signal Chair", patentYear:"1888", modernUsage:"The 'attendant call' button on modern airplanes."},
+  {category:"Daily Life", inventor:"Thomas Elkins", invention:"Chamber Commode", patentYear:"1872", modernUsage:"Precursor to the modern bathroom toilet."},
+  {category:"Daily Life", inventor:"Augustus Jackson", invention:"Ice Cream Manufacturing", patentYear:"1832", modernUsage:"Industrial churning and modern recipes."},
+  {category:"Transportation", inventor:"William S. Gray", invention:"Bicycle Improvements", patentYear:"1890s", modernUsage:"Enhanced durability for gear and frame systems."},
+  {category:"Daily Life", inventor:"Henry Brown", invention:"Strongbox", patentYear:"1886", modernUsage:"Personal fire-proof and lockable safes."},
+  {category:"Daily Life", inventor:"J.L. Love", invention:"Plasterer's Hawk", patentYear:"1895", modernUsage:"Standard tool for holding mortar in construction."},
+  {category:"Daily Life", inventor:"L.C. Bailey", invention:"Folding Bed", patentYear:"1899", modernUsage:"The space-saving 'Murphy bed' design."},
+  {category:"Daily Life", inventor:"Sarah Boone", invention:"Curved Ironing Board", patentYear:"1892", modernUsage:"Specific design for modern women's apparel."},
+  {category:"Daily Life", inventor:"Mary Kenner", invention:"Sanitary Belt", patentYear:"1957", modernUsage:"Transition tech to modern feminine products."},
+  {category:"Modern Tech", inventor:"Mildred Davidson Austin Smith", invention:"Board Game Design", patentYear:"1980s", modernUsage:"Educational games used in schools today."},
+  {category:"Science", inventor:"Bessie Blount Griffin", invention:"Amputee Feeding Device", patentYear:"1951", modernUsage:"Assistive tech for veterans and disabled persons."},
+  {category:"Daily Life", inventor:"Willis Johnson", invention:"Egg Beater", patentYear:"1884", modernUsage:"Hand-cranked kitchen mixers and whisks."},
+  {category:"Daily Life", inventor:"Solomon Harper", invention:"Thermostatic Hair Curler", patentYear:"1930", modernUsage:"Regulated heat for safe hair styling."},
+  {category:"Daily Life", inventor:"J.A. Bauer", invention:"Coin Changer", patentYear:"1889", modernUsage:"Mechanical change dispensers at registers."},
+  {category:"Daily Life", inventor:"L.P. Ray", invention:"Dustpan", patentYear:"1897", modernUsage:"The standard long-handled cleaning pan."},
+  {category:"Daily Life", inventor:"Samuel Scottron", invention:"Adjustable Mirror", patentYear:"1892", modernUsage:"Beauty mirrors used in salons and bathrooms."},
+
+  {category:"Modern Tech", inventor:"Kerrie Holley", invention:"Service Oriented Architecture", patentYear:"2000s", modernUsage:"The backbone of modern cloud computing."},
+  {category:"Modern Tech", inventor:"Peter J. Delfyett Jr.", invention:"Ultrafast Lasers", patentYear:"1990s", modernUsage:"Fiber optic communication and surgery."},
+  {category:"Modern Tech", inventor:"Aprille Ericsson", invention:"Spacecraft Control", patentYear:"1990s", modernUsage:"Guidance systems for NASA's probes."},
+  {category:"Modern Tech", inventor:"Victor Lawrence", invention:"Signal Processing", patentYear:"1980s", modernUsage:"High-speed internet and data transmission."},
+  {category:"Modern Tech", inventor:"Clarence Ellis", invention:"Operational Transformation", patentYear:"1989", modernUsage:"Real-time collaboration in Google Docs."},
+  {category:"Modern Tech", inventor:"Tahira Reid", invention:"Double Dutch Machine", patentYear:"1999", modernUsage:"Automated fitness and playground equipment."},
+  {category:"Modern Tech", inventor:"Jessica Matthews", invention:"SOCCKET Ball", patentYear:"2011", modernUsage:"Renewable energy generation in off-grid areas."},
+  {category:"Science", inventor:"Dr. Arlyne Simon", invention:"Blood Test Technology", patentYear:"2010s", modernUsage:"Monitoring bone marrow health and rejection."},
+  {category:"Modern Tech", inventor:"Nathan Brooks", invention:"Geolocation Systems", patentYear:"2000s", modernUsage:"Precision tracking for aerospace logistics."},
+  {category:"Modern Tech", inventor:"Anthony Ruto", invention:"Generative Design", patentYear:"2010s", modernUsage:"AI-assisted 3D modeling for manufacturing."},
+  {category:"Modern Tech", inventor:"Janet Bashen", invention:"EEO Software", patentYear:"2006", modernUsage:"Human Resources tracking and compliance."},
+  {category:"Science", inventor:"George Carruthers", invention:"Lunar Surface Camera", patentYear:"1969", modernUsage:"Capturing ultraviolet light from the Moon."},
+  {category:"Modern Tech", inventor:"Lisa Gelobter", invention:"Web Animation", patentYear:"1995", modernUsage:"The development of GIF and Shockwave tech."},
+
+  {category:"Modern Tech", inventor:"Marc Hannah", invention:"3D Special Effects", patentYear:"1980s", modernUsage:"Used in Hollywood blockbusters (Jurassic Park)."},
+  {category:"Science", inventor:"Hildreth Walker Jr.", invention:"Laser Telemetry", patentYear:"1969", modernUsage:"Measuring the distance from Earth to the Moon."},
+  {category:"Modern Tech", inventor:"Kamal Al Mansour", invention:"Legal Software", patentYear:"1990s", modernUsage:"Digitization of court and business records."},
+  {category:"Science", inventor:"Ayana E. Johnson", invention:"Sustainable Fish Traps", patentYear:"2010s", modernUsage:"Ocean conservation and coral reef protection."},
+
+  {category:"Science", inventor:"William P. Hubbard", invention:"Hydroelectric Power", patentYear:"1900s", modernUsage:"Expanding public access to renewable energy."},
+  {category:"Transportation", inventor:"André Rebouças", invention:"Torpedo Discharger", patentYear:"1860s", modernUsage:"Naval defense and harbor engineering."},
+  {category:"Modern Tech", inventor:"David Wabeladio Payi", invention:"Mandombe Script", patentYear:"1978", modernUsage:"Computer-ready African alphabet system."}
+];
+
+/* =========================
+   STATE
+========================= */
+let selected = null;
+let displayed = "";
+let wrongGuesses = 0;
+
+let score = 0;
+let streak = 0;
+
+let hintsUsedThisRound = 0;
+
+let classroomOn = false;
+let sessionRounds = 0;
+let sessionCorrect = 0;
+let sessionScore = 0;
+
+let audioOn = true;
+
+/* =========================
+   ELEMENTS
+========================= */
+const elWord = document.getElementById("word");
+const elRulesLabel = document.getElementById("rulesLabel");
+const elLetters = document.getElementById("letters");
+
+const elWrong = document.getElementById("wrong");
+const elMaxWrong = document.getElementById("maxWrong");
+const elScore = document.getElementById("score");
+const elStreak = document.getElementById("streak");
+const elHintArea = document.getElementById("hintArea");
+const elCategoryTag = document.getElementById("categoryTag");
+const elModeNote = document.getElementById("modeNote");
+
+const elCatSelect = document.getElementById("catSelect");
+const elDiffSelect = document.getElementById("diffSelect");
+const elHintBtn = document.getElementById("hintBtn");
+const elNewBtn = document.getElementById("newBtn");
+const elRevealBtn = document.getElementById("revealBtn");
+const elResetScoreBtn = document.getElementById("resetScoreBtn");
+
+const elClassToggle = document.getElementById("classToggle");
+const elAutoNextSelect = document.getElementById("autoNextSelect");
+const elResetSessionBtn = document.getElementById("resetSessionBtn");
+
+const elSessRounds = document.getElementById("sessRounds");
+const elSessCorrect = document.getElementById("sessCorrect");
+const elSessScore = document.getElementById("sessScore");
+
+const elAudioToggle = document.getElementById("audioToggle");
+
+const overlay = document.getElementById("overlay");
+const popTitle = document.getElementById("popTitle");
+const popInvention = document.getElementById("popInvention");
+const popInventor = document.getElementById("popInventor");
+const popCategory = document.getElementById("popCategory");
+const popYear = document.getElementById("popYear");
+const popModern = document.getElementById("popModern");
+
+const playAgainBtn = document.getElementById("playAgainBtn");
+const closeBtn = document.getElementById("closeBtn");
+
+/* =========================
+   AUDIO (no external files)
+========================= */
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq=440, dur=0.08, type="sine", gain=0.05){
+  if(!audioOn) return;
+  const ctx = getAudioCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime + dur);
+}
+function sfxCorrect(){ beep(740, 0.08, "triangle", 0.06); }
+function sfxWrong(){ beep(220, 0.10, "sawtooth", 0.035); }
+function sfxWin(){ beep(660, 0.08, "triangle", 0.06); setTimeout(()=>beep(880, 0.10, "triangle", 0.06), 90); }
+function sfxLose(){ beep(196, 0.10, "sine", 0.05); setTimeout(()=>beep(165, 0.12, "sine", 0.05), 110); }
+function sfxHint(){ beep(520, 0.06, "square", 0.03); }
+
+/* =========================
+   HELPERS
+========================= */
+function normalizeWord(s){
+  return String(s).toUpperCase().replace(/[^A-Z ]/g, "");
+}
+function getDifficulty(){
+  return DIFFICULTY[elDiffSelect.value] || DIFFICULTY.Normal;
+}
+function lettersOnlyLen(word){
+  return (word.match(/[A-Z]/g) || []).length;
+}
+function wordCount(word){
+  return word.trim().split(/\s+/).filter(Boolean).length;
+}
+function passesKidFilter(item, mode){
+  const w = normalizeWord(item.invention);
+  const letters = lettersOnlyLen(w);
+  const words = wordCount(w);
+
+  if(mode === "K2") return letters <= 12 && words <= 2;
+  if(mode === "35") return letters <= 20 && words <= 3;
+  return true;
+}
+function getCategoryPool(){
+  const cat = elCatSelect.value;
+  if(cat === "All") return ITEMS;
+  return ITEMS.filter(x => x.category === cat);
+}
+function getPool(){
+  const diff = getDifficulty();
+  const base = getCategoryPool();
+  if(!diff.kidFilter) return base;
+
+  const filtered = base.filter(it => passesKidFilter(it, diff.kidFilter));
+  return (filtered.length >= 4) ? filtered : base;
+}
+function pickRandomItem(){
+  const pool = getPool();
+  if(pool.length === 0) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function buildDisplayed(word){ return word.replace(/[A-Z]/g, "_"); }
+
+function updateModeNote(){
+  const key = elDiffSelect.value;
+  if(key === "K2"){
+    elModeNote.textContent = "K–2 mode: shorter inventions, more tries, vowels shown at start, lots of hints.";
+  } else if(key === "35"){
+    elModeNote.textContent = "3–5 mode: short-to-medium inventions, more tries, extra hints.";
+  } else {
+    elModeNote.textContent = "Classroom Mode tracks session rounds and correct answers. Auto-next moves to the next round after a win or loss.";
+  }
+}
+
+/* NEW: show/hide the vowel-freebie label based on difficulty */
+function updateRulesLabel(){
+  const diff = getDifficulty();
+  if(diff.revealVowelsAtStart){
+    elRulesLabel.style.display = "block";
+    elRulesLabel.innerHTML = "<b>Vowels are freebies</b> in this mode (A, E, I, O, U are revealed and greyed out).";
+  } else {
+    elRulesLabel.style.display = "none";
+    elRulesLabel.textContent = "";
+  }
+}
+
+function updateUI(){
+  const diff = getDifficulty();
+  elWord.textContent = displayed;
+  elWrong.textContent = wrongGuesses;
+  elMaxWrong.textContent = diff.maxWrong;
+  elScore.textContent = score;
+  elStreak.textContent = streak;
+
+  elSessRounds.textContent = sessionRounds;
+  elSessCorrect.textContent = sessionCorrect;
+  elSessScore.textContent = sessionScore;
+
+  elCategoryTag.textContent = selected ? `Category: ${selected.category}` : "";
+  updateModeNote();
+  updateRulesLabel();
+}
+
+function createLetters(){
+  elLetters.innerHTML = "";
+  const A = "A".charCodeAt(0);
+  for(let i=0;i<26;i++){
+    const ch = String.fromCharCode(A + i);
+    const btn = document.createElement("button");
+    btn.className = "letterBtn";
+    btn.textContent = ch;
+    btn.type = "button";
+    btn.onclick = () => guessLetter(ch, btn);
+    elLetters.appendChild(btn);
+  }
+}
+function setAllLetterButtonsDisabled(disabled){
+  elLetters.querySelectorAll("button").forEach(b => b.disabled = disabled);
+}
+function disableLetter(letter){
+  const btns = elLetters.querySelectorAll("button");
+  for(const b of btns){
+    if(b.textContent === letter){
+      b.disabled = true;
+      return;
+    }
+  }
+}
+
+function hideHint(){
+  elHintArea.style.display = "none";
+  elHintArea.textContent = "";
+}
+function showHint(){
+  if(!selected) return;
+  const diff = getDifficulty();
+  if(hintsUsedThisRound >= diff.hintUses) return;
+
+  hintsUsedThisRound++;
+  elHintArea.style.display = "block";
+  elHintArea.textContent = "Hint (Used Today): " + (selected.modernUsage || "No hint available yet.");
+  sfxHint();
+  updateUI();
+}
+
+function revealVowels(){
+  if(!selected) return;
+  let changed = false;
+
+  for(let i=0;i<selected.word.length;i++){
+    const ch = selected.word[i];
+    if(VOWELS.has(ch) && displayed[i] === "_"){
+      displayed = displayed.substring(0,i) + ch + displayed.substring(i+1);
+      changed = true;
+    }
+  }
+
+  for(const v of VOWELS){
+    if(selected.word.includes(v)) disableLetter(v);
+  }
+
+  if(changed) updateUI();
+}
+
+function updateDisplayedForLetter(letter){
+  let result = "";
+  for(let i=0;i<selected.word.length;i++){
+    const actual = selected.word[i];
+    const current = displayed[i];
+    result += (actual === letter) ? letter : current;
+  }
+  displayed = result;
+}
+
+function awardWinPoints(){
+  const diff = getDifficulty();
+  const remaining = Math.max(0, diff.maxWrong - wrongGuesses);
+  const pts =
+    diff.scoreBase +
+    (remaining * diff.scorePerRemainingWrong) +
+    (streak * diff.streakBonus);
+
+  score += pts;
+  if(classroomOn) sessionScore += pts;
+}
+function endLoss(){ streak = 0; }
+
+function showPopup(isWin){
+  overlay.style.display = "flex";
+  popTitle.textContent = isWin ? "You Win! 🎉" : "Round Over 😅";
+
+  popInvention.textContent = selected.word;
+  popInventor.textContent = selected.inventor;
+  popCategory.textContent = selected.category;
+
+  popYear.textContent = selected.patentYear || "Unknown";
+  popModern.textContent = selected.modernUsage || "Unknown";
+
+  if(classroomOn){
+    sessionRounds++;
+    if(isWin) sessionCorrect++;
+    updateUI();
+  }
+}
+function closePopup(){ overlay.style.display = "none"; }
+
+function scheduleAutoNext(){
+  if(!classroomOn) return;
+  const delay = Number(elAutoNextSelect.value || "0");
+  if(!delay || delay <= 0) return;
+  setTimeout(() => {
+    if(overlay.style.display === "flex"){
+      closePopup();
+      startRound();
+    }
+  }, delay * 1000);
+}
+
+function startRound(){
+  selected = pickRandomItem();
+  if(!selected){
+    alert("No items available in this category yet.");
+    return;
+  }
+
+  selected = {
+    ...selected,
+    word: normalizeWord(selected.invention),
+    inventor: String(selected.inventor || "").trim(),
+    patentYear: String(selected.patentYear || "").trim(),
+    modernUsage: String(selected.modernUsage || "").trim(),
+    category: String(selected.category || "").trim()
+  };
+
+  wrongGuesses = 0;
+  hintsUsedThisRound = 0;
+  hideHint();
+  createLetters();
+
+  displayed = buildDisplayed(selected.word);
+
+  const diff = getDifficulty();
+  setAllLetterButtonsDisabled(false);
+
+  if(diff.revealVowelsAtStart){
+    revealVowels();
+    // After enabling all, keep vowel keys disabled if they were freebies
+    for(const v of VOWELS){
+      if(selected.word.includes(v)) disableLetter(v);
+    }
+  }
+
+  updateUI();
+}
+
+function endRoundAsReveal(){
+  if(!selected) return;
+  endLoss();
+  setAllLetterButtonsDisabled(true);
+  sfxLose();
+  showPopup(false);
+  scheduleAutoNext();
+}
+
+function guessLetter(letter, btn){
+  if(audioOn){ try{ getAudioCtx().resume(); } catch(e){} }
+
+  btn.disabled = true;
+  if(!selected) return;
+
+  const diff = getDifficulty();
+
+  if(selected.word.includes(letter)){
+    updateDisplayedForLetter(letter);
+    updateUI();
+    sfxCorrect();
+
+    if(!displayed.includes("_")){
+      streak += 1;
+      awardWinPoints();
+      setAllLetterButtonsDisabled(true);
+      sfxWin();
+      showPopup(true);
+      updateUI();
+      scheduleAutoNext();
+    }
+  } else {
+    wrongGuesses += 1;
+    updateUI();
+    sfxWrong();
+
+    if(wrongGuesses >= diff.maxWrong){
+      endLoss();
+      setAllLetterButtonsDisabled(true);
+      sfxLose();
+      showPopup(false);
+      updateUI();
+      scheduleAutoNext();
+    }
+  }
+}
+
+/* =========================
+   EVENTS
+========================= */
+document.getElementById("hintBtn").addEventListener("click", () => showHint());
+document.getElementById("newBtn").addEventListener("click", () => { closePopup(); startRound(); });
+document.getElementById("revealBtn").addEventListener("click", () => endRoundAsReveal());
+
+document.getElementById("resetScoreBtn").addEventListener("click", () => {
+  score = 0; streak = 0; updateUI();
+});
+
+elCatSelect.addEventListener("change", () => { closePopup(); startRound(); });
+elDiffSelect.addEventListener("change", () => { closePopup(); startRound(); });
+
+playAgainBtn.addEventListener("click", () => { closePopup(); startRound(); });
+closeBtn.addEventListener("click", () => closePopup());
+
+overlay.addEventListener("click", (e) => { if(e.target === overlay) closePopup(); });
+
+elClassToggle.addEventListener("click", () => {
+  classroomOn = !classroomOn;
+  elClassToggle.setAttribute("aria-pressed", classroomOn ? "true" : "false");
+  elClassToggle.textContent = classroomOn ? "Classroom Mode: On" : "Classroom Mode: Off";
+  updateUI();
+});
+
+elResetSessionBtn.addEventListener("click", () => {
+  sessionRounds = 0; sessionCorrect = 0; sessionScore = 0; updateUI();
+});
+
+elAudioToggle.addEventListener("click", () => {
+  audioOn = !audioOn;
+  elAudioToggle.setAttribute("aria-pressed", audioOn ? "true" : "false");
+  elAudioToggle.textContent = audioOn ? "Audio: On" : "Audio: Off";
+  if(audioOn){
+    try{ getAudioCtx().resume(); } catch(e){}
+    beep(520, 0.06, "triangle", 0.04);
+  }
+});
+
+/* =========================
+   START
+========================= */
+startRound();
+</script>
+</body>
+</html>
