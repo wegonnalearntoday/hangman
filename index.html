@@ -941,6 +941,11 @@ elAudioToggle.addEventListener("click", () => {
    START
 ========================= */
 startRound();
+
+/* Tell Wix the game finished loading */
+if (window.parent) {
+  window.parent.postMessage({ type: "WGLT_READY" }, "*");
+}
 </script>
 </body>
 </html>
