@@ -7,61 +7,66 @@
 
   <style>
     :root{
-      /* Pan-African palette */
-      --panRed:#e31b23;
-      --panBlack:#0b0d12;
-      --panGreen:#0ea64b;
-      --panGold:#f4c542;
+      /* Image-inspired palette */
+      --bg:#06080d;
+      --bg2:#0a1220;
+      --panel:#0d1623;
+      --panel2:#101d2d;
+      --text:#f6ead0;
+      --textSoft:#e6d2a2;
+      --muted:#aab9c7;
+      --gold:#f0c56a;
+      --goldDeep:#c89238;
+      --cream:#fff4d6;
+      --teal:#133447;
+      --tealGlow:#1d536d;
+      --ember:#f2a03d;
+      --outline:#284155;
+      --shadow:0 16px 34px rgba(0,0,0,.5);
+      --radius:18px;
 
-      /* Theme */
-      --bg: var(--panBlack);
-      --panel:#11141b;
-      --panel2:#0f1220;
-      --text:#f6f7fb;
-      --muted:#b7bccb;
-      --outline:#23283a;
-      --shadow:0 12px 28px rgba(0,0,0,.45);
-      --radius:16px;
-
-      --btn:#1a1f2d;
-      --btn2:#20263a;
+      --btn:#132336;
+      --btn2:#182b40;
+      --success:#76c0a8;
+      --danger:#d96a4a;
+      --fontDisplay: Impact, Haettenschweiler, 'Arial Narrow Bold', 'Trebuchet MS', sans-serif;
+      --fontBody: 'Trebuchet MS', 'Segoe UI', Tahoma, Arial, sans-serif;
     }
 
     *{ box-sizing:border-box; }
     body{
       margin:0; padding:18px 12px 28px; text-align:center;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: var(--fontBody);
       color: var(--text);
       user-select:none;
       -webkit-tap-highlight-color: transparent;
 
-      /* Pan-African glow */
       background:
-        radial-gradient(1000px 520px at 20% -160px, rgba(227,27,35,.35) 0%, rgba(11,13,18,0) 62%),
-        radial-gradient(900px 520px at 80% -160px, rgba(14,166,75,.30) 0%, rgba(11,13,18,0) 62%),
-        radial-gradient(900px 520px at 50% -240px, rgba(244,197,66,.22) 0%, rgba(11,13,18,0) 60%),
-        linear-gradient(180deg, #0a0c12 0%, var(--bg) 55%, #07080c 100%);
+        radial-gradient(900px 500px at 50% -180px, rgba(240,197,106,.18) 0%, rgba(6,8,13,0) 60%),
+        radial-gradient(700px 420px at 18% 12%, rgba(29,83,109,.18) 0%, rgba(6,8,13,0) 58%),
+        radial-gradient(700px 420px at 82% 10%, rgba(242,160,61,.14) 0%, rgba(6,8,13,0) 56%),
+        linear-gradient(180deg, #05070b 0%, var(--bg2) 28%, var(--bg) 100%);
     }
 
     header{ max-width:1020px; margin:0 auto 12px; }
-    h1{ margin:8px 0 4px; font-size:22px; letter-spacing:.4px; }
-    .sub{ margin:0 auto 10px; max-width:860px; color:var(--muted); font-size:13px; line-height:1.35; }
+    h1{ margin:8px 0 6px; font-size:30px; letter-spacing:1.2px; text-transform:uppercase; font-family:var(--fontDisplay); color:var(--cream); text-shadow:0 0 0.5px var(--gold), 0 4px 0 rgba(0,0,0,.35), 0 10px 24px rgba(0,0,0,.55); }
+    .sub{ margin:0 auto 10px; max-width:860px; color:var(--textSoft); font-size:13px; line-height:1.45; }
 
-    /* Pan-African stripe bar */
+    /* Image-inspired accent bar */
     .stripe{
       height:10px;
       max-width:1020px;
       margin:10px auto 0;
       border-radius:999px;
-      background: linear-gradient(90deg, var(--panRed), var(--panGold), var(--panGreen));
+      background: linear-gradient(90deg, var(--goldDeep), var(--gold), var(--ember), var(--tealGlow));
       box-shadow: 0 10px 24px rgba(0,0,0,.35);
       border: 1px solid rgba(255,255,255,.08);
     }
 
     .wrap{ max-width:1020px; margin:0 auto; display:grid; gap:12px; }
     .panel{
-      background: rgba(17,20,27,.95);
-      border: 1px solid var(--outline);
+      background: linear-gradient(180deg, rgba(13,22,35,.97), rgba(10,18,30,.96));
+      border: 1px solid rgba(240,197,106,.26);
       border-radius: var(--radius);
       padding: 14px;
       box-shadow: var(--shadow);
@@ -72,8 +77,8 @@
       content:"";
       position:absolute; inset:0;
       background:
-        radial-gradient(600px 240px at 10% 0%, rgba(227,27,35,.10), transparent 55%),
-        radial-gradient(600px 240px at 90% 0%, rgba(14,166,75,.10), transparent 55%);
+        radial-gradient(620px 250px at 12% 0%, rgba(240,197,106,.12), transparent 55%),
+        radial-gradient(620px 250px at 88% 0%, rgba(29,83,109,.14), transparent 55%);
       pointer-events:none;
     }
     .panel > *{ position:relative; }
@@ -84,24 +89,25 @@
       margin-bottom:8px;
     }
     .group{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; }
-    label{ color:var(--muted); font-size:12.5px; }
+    label{ color:var(--textSoft); font-size:12.5px; font-weight:700; letter-spacing:.2px; }
 
     select, .btn{
-      background: var(--btn);
-      border: 1px solid var(--outline);
-      color: var(--text);
+      background: linear-gradient(180deg, rgba(24,43,64,.98), rgba(17,32,48,.98));
+      border: 1px solid rgba(240,197,106,.22);
+      color: var(--cream);
       border-radius: 12px;
       padding: 10px 10px;
       font-size: 14px;
       outline:none;
       cursor:pointer;
       touch-action: manipulation;
+      box-shadow: inset 0 1px 0 rgba(255,244,214,.05);
     }
-    .btn{ background: var(--btn2); padding:10px 12px; }
+    .btn{ background: linear-gradient(180deg, rgba(26,48,71,.98), rgba(20,36,54,.98)); padding:10px 12px; font-weight:700; }
     .btn:active{ transform: scale(.98); }
     .btn[aria-pressed="true"]{
-      border-color: rgba(244,197,66,.55);
-      box-shadow: 0 0 0 2px rgba(244,197,66,.12) inset;
+      border-color: rgba(240,197,106,.7);
+      box-shadow: 0 0 0 2px rgba(240,197,106,.14) inset, 0 0 18px rgba(240,197,106,.12);
     }
 
     .stats{
@@ -111,29 +117,31 @@
       font-size:13px;
     }
     .statBox{
-      background: rgba(255,255,255,.03);
+      background: linear-gradient(180deg, rgba(255,244,214,.05), rgba(255,255,255,.02));
       border: 1px solid var(--outline);
       border-radius: 14px;
       padding: 9px 10px;
       min-width: 132px;
       text-align:center;
     }
-    .statBox b{ color: var(--text); }
+    .statBox b{ color: var(--cream); }
 
     #categoryTag{
       margin:8px 0 0;
-      color: var(--panGold);
+      color: var(--gold);
       font-size:13px;
       letter-spacing:.2px;
     }
 
     #word{
-      font-size: 30px;
+      font-size: 34px;
       letter-spacing: 8px;
       margin: 14px 0 6px;
       word-break: break-word;
-      min-height: 40px;
-      text-shadow: 0 8px 22px rgba(0,0,0,.35);
+      min-height: 44px;
+      color: var(--cream);
+      font-family: var(--fontDisplay);
+      text-shadow: 0 0 0.5px var(--gold), 0 8px 22px rgba(0,0,0,.45);
     }
 
     /* NEW: small rule label */
@@ -145,7 +153,7 @@
       color: var(--muted);
       display:none;
     }
-    #rulesLabel b{ color: var(--panGold); }
+    #rulesLabel b{ color: var(--gold); }
 
     #hintArea{
       display:none;
@@ -153,7 +161,7 @@
       max-width: 860px;
       color: var(--muted);
       font-size: 14px;
-      border-top: 1px dashed rgba(244,197,66,.35);
+      border-top: 1px dashed rgba(240,197,106,.35);
       padding-top: 10px;
       line-height: 1.35;
     }
@@ -167,19 +175,21 @@
       margin-left:auto; margin-right:auto;
     }
     .letterBtn{
-      background: linear-gradient(180deg, rgba(32,38,58,.92), rgba(26,31,45,.92));
-      border: 1px solid var(--outline);
-      color: var(--text);
+      background: linear-gradient(180deg, rgba(27,50,73,.96), rgba(18,34,50,.96));
+      border: 1px solid rgba(240,197,106,.26);
+      color: var(--cream);
       border-radius: 14px;
       padding: 12px 0;
       font-size: 16px;
+      font-weight: 800;
       cursor:pointer;
       touch-action: manipulation;
+      box-shadow: inset 0 1px 0 rgba(255,244,214,.06), 0 6px 14px rgba(0,0,0,.18);
     }
     .letterBtn:active{ transform: scale(.98); }
     .letterBtn[disabled]{
-      background: rgba(255,255,255,.06);
-      color: rgba(246,247,251,.35);
+      background: rgba(255,244,214,.06);
+      color: rgba(255,244,214,.3);
       cursor:not-allowed;
       transform:none;
     }
@@ -190,7 +200,7 @@
       margin-top: 12px;
     }
     .primary{
-      background: linear-gradient(90deg, var(--panRed), var(--panGold), var(--panGreen));
+      background: linear-gradient(90deg, var(--goldDeep), var(--gold), var(--ember), var(--tealGlow));
       color:#111;
       border:none;
       border-radius: 14px;
@@ -202,14 +212,14 @@
     }
     .primary:active{ transform: scale(.98); }
     .danger{
-      background: rgba(227,27,35,.14);
-      border: 1px solid rgba(227,27,35,.38);
+      background: rgba(217,106,74,.12);
+      border: 1px solid rgba(217,106,74,.42);
       color: var(--text);
     }
 
     /* Classroom panel */
     .classPanel{
-      background: rgba(15,18,32,.88);
+      background: linear-gradient(180deg, rgba(16,29,45,.9), rgba(12,23,37,.88));
       border: 1px solid var(--outline);
       border-radius: var(--radius);
       padding: 12px;
@@ -221,7 +231,7 @@
     .classPanel::after{
       content:"";
       position:absolute; left:0; right:0; bottom:0; height:5px;
-      background: linear-gradient(90deg, var(--panRed), var(--panGold), var(--panGreen));
+      background: linear-gradient(90deg, var(--goldDeep), var(--gold), var(--ember), var(--tealGlow));
       opacity:.9;
       pointer-events:none;
     }
@@ -244,7 +254,7 @@
     #popup{
       width:min(660px, 94vw);
       background: #0f1220;
-      border: 2px solid var(--panGold);
+      border: 2px solid var(--gold);
       border-radius: 18px;
       padding: 18px;
       text-align:left;
@@ -256,15 +266,15 @@
       content:"";
       position:absolute; inset:0;
       background:
-        radial-gradient(520px 240px at 0% 0%, rgba(227,27,35,.14), transparent 55%),
-        radial-gradient(520px 240px at 100% 0%, rgba(14,166,75,.12), transparent 55%);
+        radial-gradient(520px 240px at 0% 0%, rgba(240,197,106,.12), transparent 55%),
+        radial-gradient(520px 240px at 100% 0%, rgba(29,83,109,.12), transparent 55%);
       pointer-events:none;
     }
     #popup > *{ position:relative; }
 
     #popup h2{
       margin: 0 0 10px;
-      color: var(--panGold);
+      color: var(--gold);
       text-align:center;
       letter-spacing:.3px;
     }
@@ -284,7 +294,7 @@
 
     @media (max-width: 760px){ .classGrid{ grid-template-columns: 1fr; } }
     @media (max-width: 520px){
-      #word{ font-size: 26px; letter-spacing: 6px; }
+      #word{ font-size: 28px; letter-spacing: 5px; }
       .kbd{ grid-template-columns: repeat(7, 1fr); }
       .statBox{ min-width: 118px; }
       .classPanel{ text-align:center; }
@@ -297,7 +307,7 @@
 <header>
   <h1>WGLT Black Inventors Hangman</h1>
   <p class="sub">
-    Tap letters to guess the invention. Win to reveal the inventor, patent year, and how it’s used today. 🎮📚
+    Tap letters to solve the invention. There is no reveal shortcut, so every round has to be earned to uncover the inventor, patent year, and modern impact. 🎮📚
   </p>
   <div class="stripe" aria-hidden="true"></div>
 </header>
@@ -378,7 +388,6 @@
     <div class="kbd" id="letters"></div>
 
     <div class="bottomRow">
-      <button class="primary" id="revealBtn" type="button">Reveal (Ends Round)</button>
       <button class="linkBtn danger" id="resetScoreBtn" type="button">Reset Score</button>
     </div>
   </div>
@@ -566,7 +575,6 @@ const elCatSelect = document.getElementById("catSelect");
 const elDiffSelect = document.getElementById("diffSelect");
 const elHintBtn = document.getElementById("hintBtn");
 const elNewBtn = document.getElementById("newBtn");
-const elRevealBtn = document.getElementById("revealBtn");
 const elResetScoreBtn = document.getElementById("resetScoreBtn");
 
 const elClassToggle = document.getElementById("classToggle");
@@ -850,15 +858,6 @@ function startRound(){
   updateUI();
 }
 
-function endRoundAsReveal(){
-  if(!selected) return;
-  endLoss();
-  setAllLetterButtonsDisabled(true);
-  sfxLose();
-  showPopup(false);
-  scheduleAutoNext();
-}
-
 function guessLetter(letter, btn){
   if(audioOn){ try{ getAudioCtx().resume(); } catch(e){} }
 
@@ -902,7 +901,6 @@ function guessLetter(letter, btn){
 ========================= */
 document.getElementById("hintBtn").addEventListener("click", () => showHint());
 document.getElementById("newBtn").addEventListener("click", () => { closePopup(); startRound(); });
-document.getElementById("revealBtn").addEventListener("click", () => endRoundAsReveal());
 
 document.getElementById("resetScoreBtn").addEventListener("click", () => {
   score = 0; streak = 0; updateUI();
