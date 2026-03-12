@@ -92,7 +92,7 @@
     label{ color:var(--textSoft); font-size:12.5px; font-weight:700; letter-spacing:.2px; }
 
     select, .btn{
-      background: linear-gradient(180deg, rgba(24,43,64,.98), rgba(17,32,48,.98));
+      background: linear-gradient(180deg, rgba(8,8,8,.98), rgba(0,0,0,.98));
       border: 1px solid rgba(240,197,106,.22);
       color: var(--cream);
       border-radius: 12px;
@@ -104,6 +104,10 @@
       box-shadow: inset 0 1px 0 rgba(255,244,214,.05);
     }
     .btn{ background: linear-gradient(180deg, rgba(26,48,71,.98), rgba(20,36,54,.98)); padding:10px 12px; font-weight:700; }
+    select option{
+      background:#000;
+      color: var(--cream);
+    }
     .btn:active{ transform: scale(.98); }
     .btn[aria-pressed="true"]{
       border-color: rgba(240,197,106,.7);
@@ -344,7 +348,7 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel" id="gamePanel">
     <div class="topRow">
       <div class="group">
         <label for="catSelect">Category</label>
@@ -536,6 +540,29 @@ const ITEMS = [
   {category:"Transportation", inventor:"André Rebouças", invention:"Torpedo Discharger", patentYear:"1860s", modernUsage:"Naval defense and harbor engineering."},
   {category:"Modern Tech", inventor:"David Wabeladio Payi", invention:"Mandombe Script", patentYear:"1978", modernUsage:"Computer-ready African alphabet system."}
 ];
+
+
+function smoothScrollTo(el, extraOffset = -12){
+  if(!el) return;
+  const rect = el.getBoundingClientRect();
+  const top = window.scrollY + rect.top + extraOffset;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function scrollToGame(){
+  const panel = document.getElementById("gamePanel");
+  smoothScrollTo(panel, -12);
+}
+
+function scrollToPopupAnswer(){
+  const popup = document.getElementById("popup");
+  const answerLine = document.getElementById("popInvention");
+  if(!popup || !answerLine) return;
+  smoothScrollTo(popup, -24);
+  setTimeout(() => {
+    answerLine.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 220);
+}
 
 /* =========================
    STATE
@@ -760,8 +787,10 @@ function revealVowels(){
     }
   }
 
+  // In vowel-freebie modes, disable every vowel button so kids cannot
+  // accidentally tap a vowel and lose a turn.
   for(const v of VOWELS){
-    if(selected.word.includes(v)) disableLetter(v);
+    disableLetter(v);
   }
 
   if(changed) updateUI();
@@ -806,8 +835,10 @@ function showPopup(isWin){
     if(isWin) sessionCorrect++;
     updateUI();
   }
+
+  setTimeout(scrollToPopupAnswer, 80);
 }
-function closePopup(){ overlay.style.display = "none"; }
+function closePopup(){ overlay.style.display = "none"; setTimeout(scrollToGame, 60); }
 
 function scheduleAutoNext(){
   if(!classroomOn) return;
@@ -849,13 +880,10 @@ function startRound(){
 
   if(diff.revealVowelsAtStart){
     revealVowels();
-    // After enabling all, keep vowel keys disabled if they were freebies
-    for(const v of VOWELS){
-      if(selected.word.includes(v)) disableLetter(v);
-    }
   }
 
   updateUI();
+  setTimeout(scrollToGame, 60);
 }
 
 function guessLetter(letter, btn){
